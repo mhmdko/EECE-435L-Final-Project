@@ -1,7 +1,7 @@
 # Security Incident Detection and Response Management System (Backend)
 
 EECE 435L Final Project, Sprint 1
-Team: Mohammad Kourani, Anthony Feghali, [Titia's full name]
+Team: Mohammad Kourani, Anthony Feghali, Titia Saikali
 
 A REST API backend that helps a security team manage cybersecurity incidents from the first report to closure. It tracks the assets incidents affect, known threats, and vulnerabilities, sends notifications, guides responses with playbooks, produces reports, and keeps an audit log of every security-relevant action. Four roles (Security Administrator, Security Analyst, Regular Employee, Auditor) control who can do what.
 
@@ -40,9 +40,9 @@ Nine services, three per team member, each with six REST endpoints:
 | 2 | Assets | Servers, workstations, databases, and apps that incidents can affect | Anthony Feghali | In progress |
 | 4 | Threat Intelligence | Known malicious IPs, domains, and file hashes | Anthony Feghali | In progress |
 | 7 | Vulnerabilities | CVEs found on assets, tracked from Open to Closed | Anthony Feghali | In progress |
-| 3 | Incidents | Report, assign, investigate, and close incidents | [Titia's full name] | In progress |
-| 6 | Security Reports | Statistics gathered from the other services | [Titia's full name] | In progress |
-| 9 | Playbooks and Response | Step-by-step response procedures with tracked actions | [Titia's full name] | In progress |
+| 3 | Incidents | Report, assign, investigate, and close incidents | Titia Saikali | In progress |
+| 6 | Security Reports | Statistics gathered from the other services | Titia Saikali | In progress |
+| 9 | Playbooks and Response | Step-by-step response procedures with tracked actions | Titia Saikali | In progress |
 
 ---
 
@@ -87,16 +87,16 @@ EECE-435L-Final-Project/
 │       ├── assets/           Anthony Feghali
 │       ├── threats/          Anthony Feghali
 │       ├── vulnerabilities/  Anthony Feghali
-│       ├── incidents/        [Titia's full name]
-│       ├── reports/          [Titia's full name]
-│       └── playbooks/        [Titia's full name]
+│       ├── incidents/        Titia Saikali
+│       ├── reports/          Titia Saikali
+│       └── playbooks/        Titia Saikali
 ├── database/                 SQL scripts, run in name order by init_db.py
 │   ├── 01_users_logs_notifications.sql        Mohammad Kourani
 │   ├── 02_assets_threats_vulnerabilities.sql  Anthony Feghali
-│   └── 03_incidents_playbooks.sql             [Titia's full name]
+│   └── 03_incidents_playbooks.sql             Titia Saikali
 ├── postman/                  one Postman collection per team member
 └── docs/
-    ├── architecture-diagram.png   [Titia's full name]
+    ├── architecture-diagram.png   Titia Saikali
     ├── schema-diagram.png         Anthony Feghali
     └── evidence/                  screenshots from our running system, per member
 ```
@@ -164,9 +164,9 @@ Import the files in `postman/`, then run each collection from top to bottom (see
 
 ## 6. Architecture
 
-<!-- Owner: [Titia's full name]. Add docs/architecture-diagram.png and describe how the services communicate. -->
+<!-- Owner: Titia Saikali. Add docs/architecture-diagram.png and describe how the services communicate. -->
 
-_To be completed by [Titia's full name]._
+_To be completed by Titia Saikali._
 
 How the shared parts work today:
 
@@ -270,7 +270,7 @@ Validation rules are listed in each service's README. Protection against malicio
 |------------|-------|----------|
 | `MohammadKourani.postman_collection.json` | Mohammad Kourani | 67 (all passing) |
 | `AnthonyFeghali.postman_collection.json` | Anthony Feghali | to be added |
-| `[Titia].postman_collection.json` | [Titia's full name] | to be added |
+| `TitiaSaikali.postman_collection.json` | Titia Saikali | to be added |
 
 Request names follow the format **Full Name - API title - what it does**, which matches the screenshot caption format required by the course.
 
@@ -339,7 +339,7 @@ def add_asset():
 | Database script 01 with sample data | Done |
 | Postman collection for services 1, 5, 8 (67 requests, all passing) | Done |
 | Assets, Threat Intelligence, Vulnerabilities | In progress (Anthony Feghali) |
-| Incidents, Reports, Playbooks | In progress ([Titia's full name]) |
+| Incidents, Reports, Playbooks | In progress (Titia Saikali) |
 | Architecture and schema diagrams | In progress |
 | Evidence screenshots | In progress (each member) |
 | Final report | In progress |
@@ -352,7 +352,7 @@ def add_asset():
 |--------|----------|-------------|-----------------|
 | Mohammad Kourani | Users and Identity, Security Audit Logging, Notifications | Project setup, configuration, authentication and role checks, error format, validation helpers, database build script, README | Title page, Table of Contents, Introduction, Authentication and Authorization |
 | Anthony Feghali | Assets, Threat Intelligence, Vulnerabilities | Database schema diagram | Database Design, Error Handling and Validation |
-| [Titia's full name] | Incidents, Security Reports, Playbooks and Response | Architecture diagram, evidence checklist | System Architecture, GitHub and Version Control, References |
+| Titia Saikali | Incidents, Security Reports, Playbooks and Response | Architecture diagram, evidence checklist | System Architecture, GitHub and Version Control, References |
 
 Each member pushes their own work from their own GitHub account. See the commit history for details.
 
@@ -374,4 +374,4 @@ Each member pushes their own work from their own GitHub account. See the commit 
 |--------|------|-------------------|---------|
 | Mohammad Kourani | Claude (Anthropic) | Project structure, shared modules in `app/common/`, the Users, Audit Logging, and Notifications services, `database/01_...sql`, the Postman collection, and this README | Generate the initial implementation, which was then reviewed, run, and tested on our machines |
 | Anthony Feghali | | | |
-| [Titia's full name] | | | |
+| Titia Saikali | | | |
