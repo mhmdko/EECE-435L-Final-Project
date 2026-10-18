@@ -1,0 +1,22 @@
+# Secrets: never commit the real .env (only .env.example)
+.env
+
+# Local database files (rebuilt with: python init_db.py)
+instance/
+*.db
+*.sqlite3
+
+# Python virtual environment and caches
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Postman environment exports can contain real tokens
+*.postman_environment.json

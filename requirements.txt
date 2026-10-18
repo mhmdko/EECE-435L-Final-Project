@@ -1,0 +1,6 @@
+# Python packages needed to run the project.
+# Install with: pip install -r requirements.txt
+Flask~=3.1
+Flask-SQLAlchemy~=3.1
+PyJWT~=2.9
+python-dotenv~=1.0
