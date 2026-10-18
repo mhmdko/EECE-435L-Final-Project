@@ -1,0 +1,2261 @@
+{
+  "info": {
+    "_postman_id": "c2caec3a-2b40-4576-932c-0678bab8ee24",
+    "name": "Mohammad Kourani - Users, Audit Logging, Notifications",
+    "description": "Postman collection for the services built by Mohammad Kourani: Users and Identity, Security Audit Logging, and Notifications.\n\n**Before running:** `python init_db.py` (fresh sample data), then `python run.py`.\n\nRun the folders in order (or use Run collection). The Setup folder logs in one test account per role and stores the tokens in collection variables. No real secrets are stored here.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Setup (Mohammad Kourani)",
+      "description": "Health check and one login per role.",
+      "item": [
+        {
+          "name": "Mohammad Kourani - Health Check - confirms the API is running",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/",
+            "description": "**Author:** Mohammad Kourani\n\nReturns the list of services the API has loaded. Run `python init_db.py` before running this collection so the sample data matches.\n\nSent without a token. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Login as Security Administrator - stores admin_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"admin_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Mohammad Kourani\n\nLogs in the seeded Security Administrator test account and saves its token in the collection variable `admin_token`, used by every later request.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Login as Security Analyst - stores analyst_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"analyst_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Mohammad Kourani\n\nLogs in the seeded Security Analyst test account and saves its token in the collection variable `analyst_token`, used by every later request.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"analyst\",\n  \"password\": \"Analyst@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Login as Regular Employee - stores employee_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"employee_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Mohammad Kourani\n\nLogs in the seeded Regular Employee test account and saves its token in the collection variable `employee_token`, used by every later request.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"employee\",\n  \"password\": \"Employee@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Login as Auditor - stores auditor_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"auditor_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Mohammad Kourani\n\nLogs in the seeded Auditor test account and saves its token in the collection variable `auditor_token`, used by every later request.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"auditor\",\n  \"password\": \"Auditor@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Users and Identity (Mohammad Kourani)",
+      "description": "POST /users/register, POST /users/login, PUT /users/{id}, DELETE /users/{id}, GET /users, GET /users/{username}",
+      "item": [
+        {
+          "name": "Mohammad Kourani - User Registration - employee self-registers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"new_user_id\", pm.response.json().data.user_id); }",
+                  "pm.test(\"Password hash is not returned\", function () { pm.expect(pm.response.json().data).to.not.have.property(\"password_hash\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/register",
+            "description": "**Author:** Mohammad Kourani\n\nCreates a new Regular Employee account without logging in. The password is stored hashed; the response never includes it. A USER_CREATED audit log is written.\n\nSent without a token. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Jad Nassar\",\n  \"username\": \"jad.nassar\",\n  \"email\": \"jad.nassar@company.test\",\n  \"password\": \"Welcome@2026\",\n  \"department\": \"Sales\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Registration - admin creates an analyst account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/register",
+            "description": "**Author:** Mohammad Kourani\n\nOnly a logged-in Security Administrator can create accounts with roles other than Regular Employee.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Hadi Rizk\",\n  \"username\": \"hadi.rizk\",\n  \"email\": \"hadi.rizk@company.test\",\n  \"password\": \"Analyst#2026\",\n  \"department\": \"Security Operations Center\",\n  \"role\": \"Security Analyst\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Registration - rejects a duplicate username",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/register",
+            "description": "**Author:** Mohammad Kourani\n\nUsernames are unique and case-insensitive: the API checks before inserting, and the UNIQUE constraint on users.username is a second safety net.\n\nSent without a token. Expected status: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Jad Nassar 2\",\n  \"username\": \"JAD.NASSAR\",\n  \"email\": \"other.jad@company.test\",\n  \"password\": \"Welcome@2026\",\n  \"department\": \"Sales\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Registration - rejects an invalid email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/register",
+            "description": "**Author:** Mohammad Kourani\n\nEmail must look like name@domain.com.\n\nSent without a token. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Bad Email\",\n  \"username\": \"bad.email\",\n  \"email\": \"not-an-email\",\n  \"password\": \"Welcome@2026\",\n  \"department\": \"Sales\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Registration - rejects a weak password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/register",
+            "description": "**Author:** Mohammad Kourani\n\nPasswords need at least 8 characters with a letter, a number, and a symbol.\n\nSent without a token. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Weak Password\",\n  \"username\": \"weak.pass\",\n  \"email\": \"weak.pass@company.test\",\n  \"password\": \"12345\",\n  \"department\": \"Sales\",\n  \"role\": \"Regular Employee\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Registration - rejects missing fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/register",
+            "description": "**Author:** Mohammad Kourani\n\nAll of full_name, username, email, password, department, and role are required.\n\nSent without a token. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"no.fields\",\n  \"password\": \"Welcome@2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Registration - blocks self-registration as administrator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/register",
+            "description": "**Author:** Mohammad Kourani\n\nA logged-out user can only register as a Regular Employee. The attempt is recorded as UNAUTHORIZED_ACCESS.\n\nSent without a token. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Sneaky User\",\n  \"username\": \"sneaky\",\n  \"email\": \"sneaky@company.test\",\n  \"password\": \"Welcome@2026\",\n  \"department\": \"Sales\",\n  \"role\": \"Security Administrator\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Login - new user logs in successfully",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"jad_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Mohammad Kourani\n\nThe password is hashed and compared with the stored hash. On success the API returns a token and records LOGIN_SUCCESS.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"jad.nassar\",\n  \"password\": \"Welcome@2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Login - fails with a wrong password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Mohammad Kourani\n\nThe same message is returned for a wrong username or a wrong password, so attackers cannot tell which usernames exist. LOGIN_FAILED is recorded.\n\nSent without a token. Expected status: 401.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"jad.nassar\",\n  \"password\": \"WrongPassword@1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - User Login - blocks a suspended account",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Mohammad Kourani\n\nInactive and Suspended accounts cannot log in even with the right password.\n\nSent without a token. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"suspended.user\",\n  \"password\": \"Suspended@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Update User Information - employee updates own profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/3",
+            "description": "**Author:** Mohammad Kourani\n\nRegular Employees may update their own full_name, email, and department.\n\nSent as: employee. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"Accounting\",\n  \"email\": \"lea.mansour@company.test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Update User Information - employee cannot edit another user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/1",
+            "description": "**Author:** Mohammad Kourani\n\nAn employee editing someone else's profile is rejected and logged.\n\nSent as: employee. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"department\": \"Finance\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Update User Information - employee cannot change own role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/3",
+            "description": "**Author:** Mohammad Kourani\n\nOnly administrators can change roles or account status.\n\nSent as: employee. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Security Administrator\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Update User Information - admin promotes a user (role change)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/{{new_user_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nRole changes are recorded in the audit log as ROLE_CHANGED with severity Warning.\n\nSent as: admin. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"Security Analyst\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Update User Information - rejects an invalid email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/3",
+            "description": "**Author:** Mohammad Kourani\n\nThe same validation rules apply on update.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"broken@\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve All Users - admin lists all users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users",
+            "description": "**Author:** Mohammad Kourani\n\nReturns count and users. Password hashes are never included.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve All Users - auditor lists all users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users",
+            "description": "**Author:** Mohammad Kourani\n\nAuditors have read-only access to the user list.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve All Users - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users",
+            "description": "**Author:** Mohammad Kourani\n\nRegular Employees cannot list users.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve All Users - request without a token is rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 401\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/users",
+            "description": "**Author:** Mohammad Kourani\n\nProtected endpoints require 'Authorization: Bearer <token>'.\n\nSent without a token. Expected status: 401."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve User By Username - auditor finds an existing user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/employee",
+            "description": "**Author:** Mohammad Kourani\n\nLookup is case-insensitive.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve User By Username - user does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/ghost.user",
+            "description": "**Author:** Mohammad Kourani\n\nReturns a clear 'not found' error.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve User By Username - employee views own profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/employee",
+            "description": "**Author:** Mohammad Kourani\n\nEmployees can only view their own information.\n\nSent as: employee. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Delete User - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/{{new_user_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nOnly Security Administrators can delete users. The attempt is logged.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Delete User - admin deletes a user",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/{{new_user_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nDeletes the user registered earlier in this collection. Their notifications are deleted too; their audit logs are kept with user_id set to empty.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Delete User - user not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/99999",
+            "description": "**Author:** Mohammad Kourani\n\nDeleting a missing user returns 404.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Security Audit Logging (Mohammad Kourani)",
+      "description": "POST /logs, GET /logs, GET /logs/{id}, GET /logs/search, DELETE /logs/{id}, GET /logs/user/{user_id}",
+      "item": [
+        {
+          "name": "Mohammad Kourani - Create Log Record - admin adds a log manually",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_log_id\", pm.response.json().data.log_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs",
+            "description": "**Author:** Mohammad Kourani\n\nMost logs are created automatically; this endpoint lets an administrator add one by hand.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2,\n  \"action\": \"MANUAL_REVIEW\",\n  \"description\": \"Quarterly access review completed for analyst accounts\",\n  \"severity\": \"Information\",\n  \"related_service\": \"Users\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Create Log Record - rejects an invalid severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs",
+            "description": "**Author:** Mohammad Kourani\n\nSeverity must be Information, Warning, Error, or Critical.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2,\n  \"action\": \"TEST\",\n  \"description\": \"Invalid severity test\",\n  \"severity\": \"Extreme\",\n  \"related_service\": \"Users\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Create Log Record - auditor cannot create logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs",
+            "description": "**Author:** Mohammad Kourani\n\nAuditors are read-only.\n\nSent as: auditor. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 2,\n  \"action\": \"TEST\",\n  \"description\": \"Auditor attempt\",\n  \"severity\": \"Information\",\n  \"related_service\": \"Users\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve All Logs - auditor lists every log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs",
+            "description": "**Author:** Mohammad Kourani\n\nIncludes the automatic logs created by earlier requests (logins, failed logins, denied requests, user changes).\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve All Logs - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs",
+            "description": "**Author:** Mohammad Kourani\n\nRegular Employees have no access to audit logs.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve Specific Log - analyst gets one log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/{{created_log_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nAnalysts can read a specific log during an investigation.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve Specific Log - invalid log id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/99999",
+            "description": "**Author:** Mohammad Kourani\n\nReturns a clear 'not found' error.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Logs - by action (failed logins)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/search?action=LOGIN_FAILED",
+            "description": "**Author:** Mohammad Kourani\n\nMatches any action containing the text.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Logs - by severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/search?severity=Warning",
+            "description": "**Author:** Mohammad Kourani\n\nExact severity match.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Logs - by date",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/search?date=2026-10-01",
+            "description": "**Author:** Mohammad Kourani\n\nAll logs from one day (YYYY-MM-DD). The sample data has three logs on 2026-10-01.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Logs - by user and service combined",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/search?user_id=1&service=Users",
+            "description": "**Author:** Mohammad Kourani\n\nFilters combine: every filter must match.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Logs - rejects a badly formatted date",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/search?date=01-10-2026",
+            "description": "**Author:** Mohammad Kourani\n\nDates must be YYYY-MM-DD.\n\nSent as: admin. Expected status: 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Logs - requires at least one filter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/search",
+            "description": "**Author:** Mohammad Kourani\n\nAn empty search is rejected; use GET /logs to list everything.\n\nSent as: admin. Expected status: 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve Logs By User - all activity of the admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/user/1",
+            "description": "**Author:** Mohammad Kourani\n\nReturns every log whose user_id is 1.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve Logs By User - user with no logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"No logs returned\", function () { pm.expect(pm.response.json().data.count).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/user/6",
+            "description": "**Author:** Mohammad Kourani\n\ninactive.user has never done anything, so the list is empty with a clear message.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve Logs By User - user does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/user/99999",
+            "description": "**Author:** Mohammad Kourani\n\nA missing user returns 404.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Delete Logs - analyst cannot delete logs",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/{{created_log_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nOnly administrators can delete audit records.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Delete Logs - admin deletes a log",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/{{created_log_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nThe deletion is itself recorded as a Critical LOG_DELETED event.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Audit Log Protection - logs cannot be modified",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 405\", function () { pm.response.to.have.status(405); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/logs/1",
+            "description": "**Author:** Mohammad Kourani\n\nThere is no update endpoint for logs, and a database trigger blocks any UPDATE on the logs table.\n\nSent as: admin. Expected status: 405.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"tampered\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Notifications (Mohammad Kourani)",
+      "description": "POST /notifications, GET /notifications/user/{user_id}, GET /notifications/{id}, PUT /notifications/{id}/read, GET /notifications/search, DELETE /notifications/{id}",
+      "item": [
+        {
+          "name": "Mohammad Kourani - Create Notification - admin alerts the employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_notification_id\", pm.response.json().data.notification_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications",
+            "description": "**Author:** Mohammad Kourani\n\nNew notifications start as Unread.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 3,\n  \"title\": \"Password expiry\",\n  \"message\": \"Your password expires in 3 days. Please change it.\",\n  \"notification_type\": \"System Notification\",\n  \"severity\": \"Medium\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Create Notification - rejects an invalid type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications",
+            "description": "**Author:** Mohammad Kourani\n\nType must be one of the five supported notification types.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 3,\n  \"title\": \"Bad type\",\n  \"message\": \"Test\",\n  \"notification_type\": \"Gossip\",\n  \"severity\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Create Notification - recipient does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications",
+            "description": "**Author:** Mohammad Kourani\n\nThe recipient must be an existing user.\n\nSent as: admin. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 99999,\n  \"title\": \"Nobody\",\n  \"message\": \"Test\",\n  \"notification_type\": \"Security Alert\",\n  \"severity\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Create Notification - analyst cannot create notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications",
+            "description": "**Author:** Mohammad Kourani\n\nOnly administrators (and other services internally) create notifications.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": 3,\n  \"title\": \"Test\",\n  \"message\": \"Test\",\n  \"notification_type\": \"Security Alert\",\n  \"severity\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve User Notifications - employee views own notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/user/3",
+            "description": "**Author:** Mohammad Kourani\n\nReturns count, number unread, and the list, newest first.\n\nSent as: employee. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve User Notifications - user with no notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"No notifications returned\", function () { pm.expect(pm.response.json().data.count).to.eql(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/user/6",
+            "description": "**Author:** Mohammad Kourani\n\nReturns an empty list with a clear message.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve User Notifications - employee cannot view someone else's",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/user/2",
+            "description": "**Author:** Mohammad Kourani\n\nAnalysts and employees can only see their own notifications.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve Specific Notification - employee opens one notification",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/{{created_notification_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nReturns the full notification.\n\nSent as: employee. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Retrieve Specific Notification - invalid notification id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/99999",
+            "description": "**Author:** Mohammad Kourani\n\nReturns a clear 'not found' error.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Mark Notification as Read - employee marks it as read",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Status is Read\", function () { pm.expect(pm.response.json().data.status).to.eql(\"Read\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/{{created_notification_id}}/read",
+            "description": "**Author:** Mohammad Kourani\n\nStatus changes from Unread to Read and read_date is filled in.\n\nSent as: employee. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Mark Notification as Read - marking again changes nothing",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/{{created_notification_id}}/read",
+            "description": "**Author:** Mohammad Kourani\n\nThe original read_date is kept.\n\nSent as: employee. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Mark Notification as Read - auditor cannot mark as read",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/1/read",
+            "description": "**Author:** Mohammad Kourani\n\nAuditors are read-only.\n\nSent as: auditor. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Notifications - unread notifications",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/search?status=Unread",
+            "description": "**Author:** Mohammad Kourani\n\nFilter by status.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Notifications - by type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/search?type=Security%20Alert",
+            "description": "**Author:** Mohammad Kourani\n\nFilter by notification type.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Notifications - analyst sees only own results",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/search?severity=Critical",
+            "description": "**Author:** Mohammad Kourani\n\nAnalysts' searches are automatically limited to their own notifications.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Search Notifications - rejects an invalid status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/search?status=Archived",
+            "description": "**Author:** Mohammad Kourani\n\nStatus must be Unread or Read.\n\nSent as: admin. Expected status: 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Delete Notification - employee cannot delete",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/{{created_notification_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nOnly administrators can delete notifications.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Mohammad Kourani - Delete Notification - admin deletes it",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/notifications/{{created_notification_id}}",
+            "description": "**Author:** Mohammad Kourani\n\nRemoves the notification and records NOTIFICATION_DELETED.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5000"
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "analyst_token",
+      "value": ""
+    },
+    {
+      "key": "employee_token",
+      "value": ""
+    },
+    {
+      "key": "auditor_token",
+      "value": ""
+    },
+    {
+      "key": "jad_token",
+      "value": ""
+    },
+    {
+      "key": "new_user_id",
+      "value": ""
+    },
+    {
+      "key": "created_log_id",
+      "value": ""
+    },
+    {
+      "key": "created_notification_id",
+      "value": ""
+    }
+  ]
+}
