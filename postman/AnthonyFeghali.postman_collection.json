@@ -1,0 +1,3402 @@
+{
+  "info": {
+    "_postman_id": "14d347e4-a112-4cd8-bbec-b611027cd8f4",
+    "name": "Anthony Feghali - Assets, Threat Intelligence, Vulnerabilities",
+    "description": "Postman collection for the services built by Anthony Feghali: Asset Management, Threat Intelligence, and Vulnerability Management.\n\n**Before running:** `python init_db.py` (fresh sample data), then `python run.py`.\n\nRun the folders in numeric order. Setup logs in one test account per role and stores the tokens. No real secrets are stored here.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Setup (Anthony Feghali)",
+      "description": "Health check and one login per role.",
+      "item": [
+        {
+          "name": "Anthony Feghali - Health Check - confirms the API is running",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/",
+            "description": "**Author:** Anthony Feghali\n\nLists the loaded services. Run `python init_db.py` before this collection so the sample data matches.\n\nSent without a token. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Login as Security Administrator - stores admin_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"admin_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Anthony Feghali\n\nLogs in the seeded Security Administrator test account and saves its token in `admin_token` for later requests.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Login as Security Analyst - stores analyst_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"analyst_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Anthony Feghali\n\nLogs in the seeded Security Analyst test account and saves its token in `analyst_token` for later requests.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"analyst\",\n  \"password\": \"Analyst@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Login as Regular Employee - stores employee_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"employee_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Anthony Feghali\n\nLogs in the seeded Regular Employee test account and saves its token in `employee_token` for later requests.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"employee\",\n  \"password\": \"Employee@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Login as Auditor - stores auditor_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"auditor_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Anthony Feghali\n\nLogs in the seeded Auditor test account and saves its token in `auditor_token` for later requests.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"auditor\",\n  \"password\": \"Auditor@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Asset Management (Anthony Feghali)",
+      "description": "POST /assets, PUT /assets/{id}, DELETE /assets/{id}, GET /assets, GET /assets/{id}, GET /assets/search",
+      "item": [
+        {
+          "name": "Anthony Feghali - Add New Asset - registers a web server",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_asset_id\", pm.response.json().data.asset_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nCreates a new asset. Status defaults to Active. Criticality is stored as one of Low, Medium, High, Critical, enforced by the API and by a CHECK constraint.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Customer Web Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"10.0.3.10\",\n  \"operating_system\": \"Ubuntu 24.04 LTS\",\n  \"department\": \"Sales\",\n  \"owner_id\": 1,\n  \"location\": \"Beirut HQ, Server Room B\",\n  \"criticality\": \"High\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - registers a developer workstation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nA second asset, owned by the analyst account, without a location (optional field).\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Developer Workstation 14\",\n  \"asset_type\": \"Workstation\",\n  \"ip_address\": \"10.0.5.140\",\n  \"operating_system\": \"Windows 11 Pro\",\n  \"department\": \"IT\",\n  \"owner_id\": 2,\n  \"criticality\": \"Medium\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - registers a cloud resource with IPv6",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nIPv6 addresses are accepted too. Status can be set at creation.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Analytics Cloud VM\",\n  \"asset_type\": \"Cloud Resource\",\n  \"ip_address\": \"2001:db8::25\",\n  \"department\": \"Data\",\n  \"owner_id\": 1,\n  \"location\": \"Azure West Europe\",\n  \"criticality\": \"Low\",\n  \"status\": \"Under Maintenance\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - rejects an invalid IP address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nIP addresses are validated with Python's ipaddress module.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Bad IP Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"999.10.1.5\",\n  \"department\": \"IT\",\n  \"owner_id\": 1,\n  \"criticality\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - rejects an invalid asset type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nType must be Server, Workstation, Database, Application, Network Device, or Cloud Resource.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Coffee Machine\",\n  \"asset_type\": \"Kitchen Appliance\",\n  \"ip_address\": \"10.0.9.9\",\n  \"department\": \"Facilities\",\n  \"owner_id\": 1,\n  \"criticality\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - rejects an invalid criticality",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nCriticality must be Low, Medium, High, or Critical.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Test Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"10.0.9.10\",\n  \"department\": \"IT\",\n  \"owner_id\": 1,\n  \"criticality\": \"Extreme\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - rejects an invalid status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nStatus must be Active, Inactive, or Under Maintenance.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Test Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"10.0.9.11\",\n  \"department\": \"IT\",\n  \"owner_id\": 1,\n  \"criticality\": \"Low\",\n  \"status\": \"Broken\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - rejects missing fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nasset_name, asset_type, ip_address, department, owner_id, and criticality are required.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"10.0.9.12\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - owner does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nThe owner must be an existing user.\n\nSent as: admin. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Orphan Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"10.0.9.13\",\n  \"department\": \"IT\",\n  \"owner_id\": 99999,\n  \"criticality\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Asset - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nOnly Security Administrators can create assets. The attempt is logged.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"asset_name\": \"Analyst Server\",\n  \"asset_type\": \"Server\",\n  \"ip_address\": \"10.0.9.14\",\n  \"department\": \"IT\",\n  \"owner_id\": 2,\n  \"criticality\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Asset Information - raises criticality and sets maintenance",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Criticality is now Critical\", function () { pm.expect(pm.response.json().data.asset.criticality).to.eql(\"Critical\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/{{created_asset_id}}",
+            "description": "**Author:** Anthony Feghali\n\nThe response lists each change as 'field: old -> new'. Compare with the database before and after.\n\nSent as: admin. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criticality\": \"Critical\",\n  \"status\": \"Under Maintenance\",\n  \"department\": \"E-Commerce\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Asset Information - transfers ownership",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/{{created_asset_id}}",
+            "description": "**Author:** Anthony Feghali\n\nChanging the owner checks that the new owner exists.\n\nSent as: admin. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"owner_id\": 4,\n  \"asset_name\": \"Customer Web Server (Primary)\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Asset Information - rejects an invalid status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/{{created_asset_id}}",
+            "description": "**Author:** Anthony Feghali\n\nThe same validation rules apply on update.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Retired\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Asset Information - asset not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/99999",
+            "description": "**Author:** Anthony Feghali\n\nUpdating a missing asset returns 404.\n\nSent as: admin. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Active\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve All Assets - admin lists all assets",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nEach asset includes its owner, criticality, and current status.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve All Assets - auditor lists all assets",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nAuditors have read-only access.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve All Assets - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nAnalysts can view specific assets and search, but not list them all.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve All Assets - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets",
+            "description": "**Author:** Anthony Feghali\n\nRegular Employees have no access to asset management.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve Specific Asset - analyst views an asset and its vulnerabilities",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Related vulnerabilities are listed\", function () { pm.expect(pm.response.json().data.vulnerabilities.length).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/1",
+            "description": "**Author:** Anthony Feghali\n\nIncludes the vulnerabilities found on the asset (relationship to the Vulnerability service).\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve Specific Asset - invalid asset id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/99999",
+            "description": "**Author:** Anthony Feghali\n\nReturns a clear 'not found' error.\n\nSent as: auditor. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Assets - by name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/search?name=server",
+            "description": "**Author:** Anthony Feghali\n\nName matches anywhere, any capitalization.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Assets - by type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/search?type=Workstation",
+            "description": "**Author:** Anthony Feghali\n\nExact asset type.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Assets - by IP prefix",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/search?ip=10.0.1.",
+            "description": "**Author:** Anthony Feghali\n\nA full IP or its beginning, e.g. one subnet.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Assets - by department",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/search?department=finance",
+            "description": "**Author:** Anthony Feghali\n\nDepartment matches anywhere, any capitalization.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Assets - by criticality",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/search?criticality=Critical",
+            "description": "**Author:** Anthony Feghali\n\nExact criticality level.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Assets - combined: type and criticality",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/search?type=Server&criticality=High",
+            "description": "**Author:** Anthony Feghali\n\nFilters combine: every filter must match.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Assets - rejects an invalid criticality",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/search?criticality=Huge",
+            "description": "**Author:** Anthony Feghali\n\nFilter values are validated.\n\nSent as: admin. Expected status: 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Assets - requires at least one filter",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/search",
+            "description": "**Author:** Anthony Feghali\n\nUse GET /assets to list everything.\n\nSent as: admin. Expected status: 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Asset - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/{{created_asset_id}}",
+            "description": "**Author:** Anthony Feghali\n\nAuthorization is enforced by @roles_required(ADMIN): other roles get 403 and the attempt is logged as UNAUTHORIZED_ACCESS.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Asset - blocked while vulnerabilities are linked",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/1",
+            "description": "**Author:** Anthony Feghali\n\nAsset 1 has vulnerabilities. The foreign key from vulnerabilities to assets prevents deleting it, so no vulnerability is left pointing to nothing.\n\nSent as: admin. Expected status: 409."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Asset - admin deletes an asset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/{{created_asset_id}}",
+            "description": "**Author:** Anthony Feghali\n\nDeletes the asset created at the start of this folder.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Asset - asset not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/assets/{{created_asset_id}}",
+            "description": "**Author:** Anthony Feghali\n\nDeleting it again returns 404, confirming it is gone.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Threat Intelligence (Anthony Feghali)",
+      "description": "POST /threats, GET /threats, GET /threats/{id}, GET /threats/search, PUT /threats/{id}, DELETE /threats/{id}",
+      "item": [
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - malicious IP (High)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_threat_id\", pm.response.json().data.threat_id); }",
+                  "pm.test(\"Analysts were alerted\", function () { pm.expect(pm.response.json().data.analysts_alerted).to.be.above(0); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nIP format is validated. High and Critical threats send a Threat Alert notification to every active Security Analyst.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"IP Address\",\n  \"threat_value\": \"91.240.118.172\",\n  \"description\": \"Botnet node sending credential-stuffing traffic to the VPN portal\",\n  \"severity\": \"High\",\n  \"source\": \"AbuseIPDB\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - phishing domain (Critical)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nDomains are validated and stored in lowercase.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"Domain\",\n  \"threat_value\": \"Payroll-Update-Portal.com\",\n  \"description\": \"Credential phishing site targeting our finance team\",\n  \"severity\": \"Critical\",\n  \"source\": \"Internal SOC\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - malware file hash (Medium)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Algorithm detected\", function () { pm.expect(pm.response.json().data.hash_algorithm).to.eql(\"SHA-256\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nHashes must be MD5, SHA-1, or SHA-256. The response reports the detected algorithm.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"File Hash\",\n  \"threat_value\": \"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\n  \"description\": \"SHA-256 of a dropper seen in a malicious email attachment\",\n  \"severity\": \"Medium\",\n  \"source\": \"VirusTotal\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - malware signature (Low)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nLow severity: no analyst alert is sent.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"Malware Signature\",\n  \"threat_value\": \"AgentTesla SMTP exfiltration pattern\",\n  \"description\": \"Keylogger sending stolen data over SMTP\",\n  \"severity\": \"Low\",\n  \"source\": \"Vendor threat feed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - rejects a duplicate indicator",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nValues are normalized first, so this matches the existing lowercase domain. The UNIQUE (threat_type, threat_value) constraint is a second safety net.\n\nSent as: admin. Expected status: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"Domain\",\n  \"threat_value\": \"SECURE-PAYPA1-LOGIN.COM\",\n  \"description\": \"Same domain in capital letters\",\n  \"severity\": \"High\",\n  \"source\": \"PhishTank\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - rejects an invalid IP",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nIP threats must contain a valid IP address.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"IP Address\",\n  \"threat_value\": \"300.1.2.3\",\n  \"description\": \"Invalid IP test\",\n  \"severity\": \"Low\",\n  \"source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - rejects an invalid domain",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nDomain threats must contain a valid domain name.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"Domain\",\n  \"threat_value\": \"not a domain!\",\n  \"description\": \"Invalid domain test\",\n  \"severity\": \"Low\",\n  \"source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - rejects an invalid hash",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nFile hashes must be 32, 40, or 64 hexadecimal characters.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"File Hash\",\n  \"threat_value\": \"12345xyz\",\n  \"description\": \"Invalid hash test\",\n  \"severity\": \"Low\",\n  \"source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - rejects an invalid severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nSeverity must be Low, Medium, High, or Critical.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"IP Address\",\n  \"threat_value\": \"198.51.100.7\",\n  \"description\": \"Invalid severity test\",\n  \"severity\": \"Scary\",\n  \"source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add Threat Indicator - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nOnly Security Administrators add threats.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_type\": \"IP Address\",\n  \"threat_value\": \"198.51.100.8\",\n  \"description\": \"Analyst attempt\",\n  \"severity\": \"Low\",\n  \"source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve All Threat Indicators - analyst lists all threats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nIncludes severity, source, and date added, newest first.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve All Threat Indicators - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats",
+            "description": "**Author:** Anthony Feghali\n\nRegular Employees have no access to threat intelligence.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve Specific Threat Indicator - auditor views one threat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/{{created_threat_id}}",
+            "description": "**Author:** Anthony Feghali\n\nComplete information about one threat.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve Specific Threat Indicator - threat does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/99999",
+            "description": "**Author:** Anthony Feghali\n\nReturns a clear 'not found' error.\n\nSent as: analyst. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Threat Indicators - by type",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/search?type=IP%20Address",
+            "description": "**Author:** Anthony Feghali\n\nExact threat type.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Threat Indicators - by value",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/search?value=paypa1",
+            "description": "**Author:** Anthony Feghali\n\nMatches part of the value, any capitalization.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Threat Indicators - by severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/search?severity=Critical",
+            "description": "**Author:** Anthony Feghali\n\nExact severity.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Threat Indicators - by source",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/search?source=virustotal",
+            "description": "**Author:** Anthony Feghali\n\nMatches part of the source name.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Threat Indicators - combined: type and severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/search?type=IP%20Address&severity=High",
+            "description": "**Author:** Anthony Feghali\n\nFilters combine: every filter must match.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Threat Indicators - auditor is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/search?severity=High",
+            "description": "**Author:** Anthony Feghali\n\nAuditors can view threats but not search them.\n\nSent as: auditor. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Threat Information - raises severity and updates description",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Severity is now Critical\", function () { pm.expect(pm.response.json().data.threat.severity).to.eql(\"Critical\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/{{created_threat_id}}",
+            "description": "**Author:** Anthony Feghali\n\nOnly description, severity, and source can change. Compare with the record before the update.\n\nSent as: admin. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"severity\": \"Critical\",\n  \"description\": \"Botnet node now also scanning for exposed RDP\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Threat Information - cannot change the indicator value",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/{{created_threat_id}}",
+            "description": "**Author:** Anthony Feghali\n\nThe type and value identify the threat, so they cannot be changed.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"threat_value\": \"1.1.1.1\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Threat Information - rejects an invalid severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/{{created_threat_id}}",
+            "description": "**Author:** Anthony Feghali\n\nSeverity is validated on update too.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"severity\": \"Unknown\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Threat Information - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/{{created_threat_id}}",
+            "description": "**Author:** Anthony Feghali\n\nOnly Security Administrators update threats.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"source\": \"Analyst edit\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Threat Indicator - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/{{created_threat_id}}",
+            "description": "**Author:** Anthony Feghali\n\nUnauthorized deletion is prevented and logged.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Threat Indicator - admin deletes a threat",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/{{created_threat_id}}",
+            "description": "**Author:** Anthony Feghali\n\nRemoves the threat and records THREAT_DELETED in the audit log.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Threat Indicator - threat not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/threats/{{created_threat_id}}",
+            "description": "**Author:** Anthony Feghali\n\nDeleting it again returns 404, confirming it is gone.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Vulnerability Management (Anthony Feghali)",
+      "description": "POST /vulnerabilities, GET /vulnerabilities, GET /vulnerabilities/{id}, PUT /vulnerabilities/{id}, GET /vulnerabilities/search, DELETE /vulnerabilities/{id}",
+      "item": [
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - Citrix Bleed on the firewall (Critical)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_vulnerability_id\", pm.response.json().data.vulnerability_id); }",
+                  "pm.test(\"Starts as Open\", function () { pm.expect(pm.response.json().data.status).to.eql(\"Open\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nNew vulnerabilities start as Open. For High or Critical ones, the affected asset's owner gets a Vulnerability Alert notification.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Citrix Bleed session hijacking\",\n  \"description\": \"Buffer over-read leaks session tokens from NetScaler gateways.\",\n  \"cve_id\": \"CVE-2023-4966\",\n  \"cvss_score\": 9.4,\n  \"severity\": \"Critical\",\n  \"asset_id\": 4,\n  \"discovery_source\": \"Vendor advisory\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - Terrapin on the mail server (Medium)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nCVE ids are stored in uppercase. The same CVE may exist on different assets.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Terrapin SSH prefix truncation\",\n  \"description\": \"SSH handshake messages can be dropped, weakening security.\",\n  \"cve_id\": \"cve-2023-48795\",\n  \"cvss_score\": 5.9,\n  \"severity\": \"Medium\",\n  \"asset_id\": 5,\n  \"discovery_source\": \"Nessus scan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - xz backdoor on the payroll server (Critical)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nA third record, to show multiple vulnerabilities on one asset.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"xz-utils backdoor\",\n  \"description\": \"Malicious code in xz/liblzma allows SSH authentication bypass.\",\n  \"cve_id\": \"CVE-2024-3094\",\n  \"cvss_score\": 10.0,\n  \"severity\": \"Critical\",\n  \"asset_id\": 1,\n  \"discovery_source\": \"Threat intelligence feed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - rejects the same CVE on the same asset",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nAsset 2 already has CVE-2021-44228. A UNIQUE (cve_id, asset_id) constraint backs this up.\n\nSent as: admin. Expected status: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Log4Shell again\",\n  \"description\": \"Duplicate test\",\n  \"cve_id\": \"CVE-2021-44228\",\n  \"cvss_score\": 10.0,\n  \"severity\": \"Critical\",\n  \"asset_id\": 2,\n  \"discovery_source\": \"Nessus scan\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - rejects an invalid CVE id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nCVE ids must look like CVE-YYYY-NNNN.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Bad CVE\",\n  \"description\": \"Invalid CVE test\",\n  \"cve_id\": \"CVE-24-1\",\n  \"cvss_score\": 5.0,\n  \"severity\": \"Medium\",\n  \"asset_id\": 3,\n  \"discovery_source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - rejects a CVSS score above 10",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nCVSS scores range from 0.0 to 10.0.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Bad score\",\n  \"description\": \"Invalid score test\",\n  \"cve_id\": \"CVE-2024-0001\",\n  \"cvss_score\": 12.5,\n  \"severity\": \"Critical\",\n  \"asset_id\": 3,\n  \"discovery_source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - rejects a severity that contradicts the score",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nSeverity must match the official CVSS v3 band: Low 0.0-3.9, Medium 4.0-6.9, High 7.0-8.9, Critical 9.0-10.0.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Mismatch\",\n  \"description\": \"Severity mismatch test\",\n  \"cve_id\": \"CVE-2024-0002\",\n  \"cvss_score\": 3.1,\n  \"severity\": \"Critical\",\n  \"asset_id\": 3,\n  \"discovery_source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - affected asset does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nEvery vulnerability must be linked to an existing asset.\n\nSent as: admin. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"No asset\",\n  \"description\": \"Missing asset test\",\n  \"cve_id\": \"CVE-2024-0003\",\n  \"cvss_score\": 5.0,\n  \"severity\": \"Medium\",\n  \"asset_id\": 99999,\n  \"discovery_source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Add New Vulnerability - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nOnly Security Administrators add vulnerabilities.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Analyst attempt\",\n  \"description\": \"Test\",\n  \"cve_id\": \"CVE-2024-0004\",\n  \"cvss_score\": 5.0,\n  \"severity\": \"Medium\",\n  \"asset_id\": 3,\n  \"discovery_source\": \"Test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve All Vulnerabilities - auditor lists all",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nEach record includes severity, the affected asset, and the current status.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve All Vulnerabilities - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities",
+            "description": "**Author:** Anthony Feghali\n\nRegular Employees have no access to vulnerability management.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve Specific Vulnerability - analyst views one",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/{{created_vulnerability_id}}",
+            "description": "**Author:** Anthony Feghali\n\nIncludes next_allowed_status, which shows the lifecycle rule.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Retrieve Specific Vulnerability - invalid id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/99999",
+            "description": "**Author:** Anthony Feghali\n\nReturns a clear 'not found' error.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Vulnerability Information - Open to Under Investigation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/{{created_vulnerability_id}}",
+            "description": "**Author:** Anthony Feghali\n\nAnalysts can update vulnerabilities. Status moves one step at a time.\n\nSent as: analyst. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Under Investigation\",\n  \"description\": \"Confirmed vulnerable firmware on the primary firewall.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Vulnerability Information - rejects skipping a step",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/{{created_vulnerability_id}}",
+            "description": "**Author:** Anthony Feghali\n\nUnder Investigation can only move to In Progress. Invalid transitions are rejected.\n\nSent as: analyst. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Resolved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Vulnerability Information - Under Investigation to In Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/{{created_vulnerability_id}}",
+            "description": "**Author:** Anthony Feghali\n\nNext valid step.\n\nSent as: analyst. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Vulnerability Information - In Progress to Resolved (sets resolution date)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Resolution date was set\", function () { pm.expect(pm.response.json().data.vulnerability.resolution_date).to.not.be.null; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/{{created_vulnerability_id}}",
+            "description": "**Author:** Anthony Feghali\n\nMoving to Resolved fills resolution_date automatically.\n\nSent as: admin. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Resolved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Vulnerability Information - adjusts CVSS score and severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/2",
+            "description": "**Author:** Anthony Feghali\n\nScore and severity can change together, as long as they still match.\n\nSent as: analyst. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"cvss_score\": 9.2,\n  \"severity\": \"Critical\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Vulnerability Information - rejects a resolution date while Open",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/5",
+            "description": "**Author:** Anthony Feghali\n\nA resolution date is only allowed once the status is Resolved or Closed.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolution_date\": \"2026-10-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Vulnerability Information - rejects changing a Closed record's status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/6",
+            "description": "**Author:** Anthony Feghali\n\nClosed is the final status.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Open\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Update Vulnerability Information - auditor is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/2",
+            "description": "**Author:** Anthony Feghali\n\nAuditors are read-only.\n\nSent as: auditor. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Auditor edit\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Vulnerabilities - by CVE",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/search?cve=2024",
+            "description": "**Author:** Anthony Feghali\n\nMatches part of the CVE id, e.g. all 2024 CVEs.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Vulnerabilities - by severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/search?severity=Critical",
+            "description": "**Author:** Anthony Feghali\n\nExact severity.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Vulnerabilities - by asset id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/search?asset_id=1",
+            "description": "**Author:** Anthony Feghali\n\nEvery vulnerability on asset 1.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Vulnerabilities - by asset name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/search?asset=server",
+            "description": "**Author:** Anthony Feghali\n\nMatches part of the affected asset's name.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Vulnerabilities - by status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/search?status=Open",
+            "description": "**Author:** Anthony Feghali\n\nExact status.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Vulnerabilities - combined: severity and status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/search?severity=High&status=Open",
+            "description": "**Author:** Anthony Feghali\n\nFilters combine: every filter must match.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Search Vulnerabilities - rejects an invalid status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/search?status=Fixed",
+            "description": "**Author:** Anthony Feghali\n\nFilter values are validated.\n\nSent as: admin. Expected status: 400."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Vulnerability - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/{{created_vulnerability_id}}",
+            "description": "**Author:** Anthony Feghali\n\nOnly Security Administrators delete vulnerabilities; the attempt is logged.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Vulnerability - admin deletes one",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/{{created_vulnerability_id}}",
+            "description": "**Author:** Anthony Feghali\n\nRemoves the record and logs VULNERABILITY_DELETED.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Anthony Feghali - Delete Vulnerability - not found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/vulnerabilities/{{created_vulnerability_id}}",
+            "description": "**Author:** Anthony Feghali\n\nDeleting it again returns 404, confirming it is gone.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5000"
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "analyst_token",
+      "value": ""
+    },
+    {
+      "key": "employee_token",
+      "value": ""
+    },
+    {
+      "key": "auditor_token",
+      "value": ""
+    },
+    {
+      "key": "created_asset_id",
+      "value": ""
+    },
+    {
+      "key": "created_threat_id",
+      "value": ""
+    },
+    {
+      "key": "created_vulnerability_id",
+      "value": ""
+    }
+  ]
+}

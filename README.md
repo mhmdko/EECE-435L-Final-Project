@@ -37,9 +37,9 @@ Nine services, three per team member, each with six REST endpoints:
 | 1 | Users and Identity | Registration, login, profiles, roles, account status | Mohammad Kourani | Done |
 | 5 | Security Audit Logging | Records logins, changes, and denied requests; logs cannot be edited | Mohammad Kourani | Done |
 | 8 | Notifications | Alerts users about assignments, threats, and system events | Mohammad Kourani | Done |
-| 2 | Assets | Servers, workstations, databases, and apps that incidents can affect | Anthony Feghali | In progress |
-| 4 | Threat Intelligence | Known malicious IPs, domains, and file hashes | Anthony Feghali | In progress |
-| 7 | Vulnerabilities | CVEs found on assets, tracked from Open to Closed | Anthony Feghali | In progress |
+| 2 | Assets | Servers, workstations, databases, and apps that incidents can affect | Anthony Feghali | Done |
+| 4 | Threat Intelligence | Known malicious IPs, domains, and file hashes | Anthony Feghali | Done |
+| 7 | Vulnerabilities | CVEs found on assets, tracked from Open to Closed | Anthony Feghali | Done |
 | 3 | Incidents | Report, assign, investigate, and close incidents | Titia Saikali | In progress |
 | 6 | Security Reports | Statistics gathered from the other services | Titia Saikali | In progress |
 | 9 | Playbooks and Response | Step-by-step response procedures with tracked actions | Titia Saikali | In progress |
@@ -79,6 +79,7 @@ EECE-435L-Final-Project/
 │   │   ├── auth.py           login tokens and the @roles_required check
 │   │   ├── errors.py         standard success and error responses
 │   │   ├── validation.py     input checks (required fields, email, allowed values, ...)
+│   │   ├── network_validation.py  IP, domain, hash, CVE, and CVSS checks (Anthony Feghali)
 │   │   └── time_utils.py     date and time helpers
 │   └── services/             one folder per service
 │       ├── users/            Mohammad Kourani
@@ -97,7 +98,7 @@ EECE-435L-Final-Project/
 ├── postman/                  one Postman collection per team member
 └── docs/
     ├── architecture-diagram.png   Titia Saikali
-    ├── schema-diagram.png         Anthony Feghali
+    ├── database-schema.md         Anthony Feghali (diagram GitHub draws from text)
     └── evidence/                  screenshots from our running system, per member
 ```
 
@@ -173,27 +174,46 @@ How the shared parts work today:
 - All services run inside one Flask application. Each service is a Blueprint in its own folder under `app/services/` and is registered automatically.
 - Every protected request passes through `@roles_required`, which checks the login token, the account status, and the user's role before the service code runs.
 - Services cooperate through shared functions: any service records audit events with `log_event()` and alerts users with `create_notification()`.
+- Examples already working:
+  - Adding a High or Critical threat alerts every active Security Analyst.
+  - Adding a High or Critical vulnerability alerts the affected asset's owner.
+  - `GET /assets/{id}` lists the vulnerabilities found on that asset.
 
 ---
 
 ## 7. Database
 
-<!-- Owner: Anthony Feghali. Add docs/schema-diagram.png, then describe every table, key, and relationship. -->
+Owner: Anthony Feghali
 
-_Full schema description to be completed by Anthony Feghali._
+The database is a single SQLite file, `instance/security.db`, built by `python init_db.py` from the scripts in `database/`. Scripts run in name order, so every table is created after the tables it points to.
 
-Tables created by `database/01_users_logs_notifications.sql` (Mohammad Kourani):
+**Schema diagram:** see [docs/database-schema.md](docs/database-schema.md). GitHub draws the diagram from text, so it always matches the scripts.
 
-| Table | Primary key | Foreign keys | Notes |
-|-------|-------------|--------------|-------|
-| users | user_id | none | username and email are unique (case-insensitive); role and account_status are limited to their allowed values |
-| logs | log_id | user_id → users (SET NULL on delete) | a trigger blocks any UPDATE, so records cannot be edited; logs survive when their user is deleted |
-| notifications | notification_id | user_id → users (CASCADE on delete) | type, severity, and status are limited to their allowed values |
+### Tables
 
-Design decisions:
-- **Allowed values are enforced in two places:** in the API (clear error messages) and with `CHECK` constraints in the database (a safety net).
-- **Audit logs are protected at the database level:** even someone with direct database access cannot edit a log through normal SQL.
-- **Deleting a user keeps their audit history** (user_id becomes empty) but removes their notifications, which are only meaningful to them.
+| Table | Script | Primary key | Foreign keys | Key rules |
+|-------|--------|-------------|--------------|-----------|
+| users | 01 | user_id | none | username and email unique (case-insensitive); role and account_status limited to allowed values |
+| logs | 01 | log_id | user_id → users (SET NULL on delete) | a trigger blocks any UPDATE; logs survive when their user is deleted |
+| notifications | 01 | notification_id | user_id → users (CASCADE on delete) | type, severity, and status limited to allowed values |
+| assets | 02 | asset_id | owner_id → users | type, criticality, and status limited to allowed values; owners with assets cannot be deleted |
+| threats | 02 | threat_id | none | UNIQUE (threat_type, threat_value); type and severity limited to allowed values |
+| vulnerabilities | 02 | vulnerability_id | asset_id → assets | UNIQUE (cve_id, asset_id); CVSS score from 0.0 to 10.0; assets with vulnerabilities cannot be deleted |
+| incidents, investigation_notes, playbooks, response_actions | 03 | | | added by Titia Saikali |
+
+### Relationships
+
+- One user owns many assets, receives many notifications, and performs many logged actions.
+- One asset can have many vulnerabilities; each vulnerability belongs to exactly one asset.
+- Threats stand alone: an indicator is known to be malicious whether or not it has hit us yet.
+
+### Design decisions
+
+- **Allowed values are enforced twice:** in the API, for clear error messages, and with `CHECK` constraints in the database, as a safety net.
+- **Uniqueness rules live in the database:** duplicate usernames, duplicate threat indicators, and the same CVE twice on one asset are rejected even if two requests arrive at the same moment.
+- **Foreign keys protect links:** you cannot delete a user who still owns assets, or an asset that still has vulnerabilities. Nothing is ever left pointing to a missing record.
+- **Audit logs are protected:** even direct SQL cannot edit a log, and deleting a user keeps their audit history.
+- **Indicator values are normalized before saving:** IPs in standard form, domains and hashes in lowercase, CVE ids in uppercase. This makes duplicate checks and searches reliable.
 
 ### Test accounts (sample data)
 
@@ -269,7 +289,7 @@ Validation rules are listed in each service's README. Protection against malicio
 | Collection | Owner | Requests |
 |------------|-------|----------|
 | `MohammadKourani.postman_collection.json` | Mohammad Kourani | 67 (all passing) |
-| `AnthonyFeghali.postman_collection.json` | Anthony Feghali | to be added |
+| `AnthonyFeghali.postman_collection.json` | Anthony Feghali | 95 (all passing) |
 | `TitiaSaikali.postman_collection.json` | Titia Saikali | to be added |
 
 Request names follow the format **Full Name - API title - what it does**, which matches the screenshot caption format required by the course.
@@ -338,9 +358,12 @@ def add_asset():
 | Notifications service (6 endpoints) | Done |
 | Database script 01 with sample data | Done |
 | Postman collection for services 1, 5, 8 (67 requests, all passing) | Done |
-| Assets, Threat Intelligence, Vulnerabilities | In progress (Anthony Feghali) |
+| Assets, Threat Intelligence, Vulnerabilities (18 endpoints) | Done (Anthony Feghali) |
+| Database script 02 with sample data | Done (Anthony Feghali) |
+| Postman collection for services 2, 4, 7 (95 requests, all passing) | Done (Anthony Feghali) |
 | Incidents, Reports, Playbooks | In progress (Titia Saikali) |
-| Architecture and schema diagrams | In progress |
+| Database schema diagram | Done (Anthony Feghali), Incidents tables to be added |
+| Architecture diagram | In progress (Titia Saikali) |
 | Evidence screenshots | In progress (each member) |
 | Final report | In progress |
 
@@ -351,7 +374,7 @@ def add_asset():
 | Member | Services | Shared work | Report sections |
 |--------|----------|-------------|-----------------|
 | Mohammad Kourani | Users and Identity, Security Audit Logging, Notifications | Project setup, configuration, authentication and role checks, error format, validation helpers, database build script, README | Title page, Table of Contents, Introduction, Authentication and Authorization |
-| Anthony Feghali | Assets, Threat Intelligence, Vulnerabilities | Database schema diagram | Database Design, Error Handling and Validation |
+| Anthony Feghali | Assets, Threat Intelligence, Vulnerabilities | Network and security validation helpers, database schema diagram and description | Database Design, Error Handling and Validation |
 | Titia Saikali | Incidents, Security Reports, Playbooks and Response | Architecture diagram, evidence checklist | System Architecture, GitHub and Version Control, References |
 
 Each member pushes their own work from their own GitHub account. See the commit history for details.
@@ -373,5 +396,5 @@ Each member pushes their own work from their own GitHub account. See the commit 
 | Member | Tool | Where it was used | Purpose |
 |--------|------|-------------------|---------|
 | Mohammad Kourani | Claude (Anthropic) | Project structure, shared modules in `app/common/`, the Users, Audit Logging, and Notifications services, `database/01_...sql`, the Postman collection, and this README | Generate the initial implementation, which was then reviewed, run, and tested on our machines |
-| Anthony Feghali | | | |
+| Anthony Feghali | Claude (Anthropic) and Codex (OpenAI) | The Assets, Threat Intelligence, and Vulnerabilities services, `app/common/network_validation.py`, `database/02_...sql`, the Postman collection, the Database section of this README, `docs/database-schema.md`, integration verification, and report and evidence drafts outside the repo | Generate the initial implementation; assist with integration, testing, and documentation, subject to review and verification on our machines |
 | Titia Saikali | | | |
