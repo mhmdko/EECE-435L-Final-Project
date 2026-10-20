@@ -1,0 +1,3734 @@
+{
+  "info": {
+    "_postman_id": "0a7b017d-c7e0-4a0f-8048-2c7b565b6ea0",
+    "name": "Titia Saikali - Incidents, Reports, Playbooks",
+    "description": "Postman collection for the services built by Titia Saikali: Incident Management, Security Reports, and Security Playbooks and Response Automation.\n\n**Before running:** `python init_db.py` (fresh sample data), then `python run.py`.\n\nRun the folders in numeric order. Setup logs in one account per role and creates a second analyst. No real secrets are stored here.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "0. Setup (Titia Saikali)",
+      "description": "Health check, one login per role, and a second analyst.",
+      "item": [
+        {
+          "name": "Titia Saikali - Health Check - confirms the API is running",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/",
+            "description": "**Author:** Titia Saikali\n\nLists the loaded services. Run `python init_db.py` before this collection so the sample data matches.\n\nSent without a token. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Login as Security Administrator - stores admin_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"admin_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Titia Saikali\n\nLogs in the seeded Security Administrator test account and saves its token in `admin_token` for later requests.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"Admin@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Login as Security Analyst - stores analyst_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"analyst_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Titia Saikali\n\nLogs in the seeded Security Analyst test account and saves its token in `analyst_token` for later requests.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"analyst\",\n  \"password\": \"Analyst@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Login as Regular Employee - stores employee_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"employee_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Titia Saikali\n\nLogs in the seeded Regular Employee test account and saves its token in `employee_token` for later requests.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"employee\",\n  \"password\": \"Employee@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Login as Auditor - stores auditor_token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"auditor_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Titia Saikali\n\nLogs in the seeded Auditor test account and saves its token in `auditor_token` for later requests.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"auditor\",\n  \"password\": \"Auditor@1234\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Setup - admin registers a second analyst",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"analyst2_id\", pm.response.json().data.user_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/register",
+            "description": "**Author:** Titia Saikali\n\nA second analyst is needed to show that analysts can only work on what is assigned to them.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Nour Haddad\",\n  \"username\": \"nour.haddad\",\n  \"email\": \"nour.haddad@company.test\",\n  \"password\": \"Analyst#2026\",\n  \"department\": \"Security Operations Center\",\n  \"role\": \"Security Analyst\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Setup - second analyst logs in",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 200) { pm.collectionVariables.set(\"analyst2_token\", pm.response.json().data.token); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/users/login",
+            "description": "**Author:** Titia Saikali\n\nSaves the token in `analyst2_token`.\n\nSent without a token. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nour.haddad\",\n  \"password\": \"Analyst#2026\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "1. Incident Management (Titia Saikali)",
+      "description": "POST /incidents, GET /incidents, GET /incidents/{id}, PUT /incidents/{id}/assign, PUT /incidents/{id}/status, POST /incidents/{id}/notes",
+      "item": [
+        {
+          "name": "Titia Saikali - Create Incident - employee reports ransomware (Critical)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_incident_id\", pm.response.json().data.incident_id); }",
+                  "pm.test(\"Administrators were alerted\", function () { pm.expect(pm.response.json().data.administrators_alerted).to.be.above(0); });",
+                  "pm.test(\"Starts as Open\", function () { pm.expect(pm.response.json().data.status).to.eql(\"Open\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nCritical because files are being encrypted and could spread to shared drives: it needs immediate response. The reporter is the logged-in employee. High and Critical incidents alert every administrator.\n\nSent as: employee. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Ransom note on finance laptop\",\n  \"description\": \"Files on the desktop were renamed with a .locked extension and a ransom note appeared.\",\n  \"category\": \"Malware Infection\",\n  \"severity\": \"Critical\",\n  \"affected_asset_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - admin reports on behalf of an employee (High)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nHigh because an important system that stores personal data may be compromised. Administrators may set reporter_id.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Unknown PowerShell script on HR portal\",\n  \"description\": \"An encoded PowerShell command ran on the HR portal server at 03:00.\",\n  \"category\": \"Unauthorized Access\",\n  \"severity\": \"High\",\n  \"affected_asset_id\": 2,\n  \"reporter_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - employee reports a phishing SMS (Medium)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nMedium: it needs investigation, but no account was compromised.\n\nSent as: employee. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"SMS asking for VPN code\",\n  \"description\": \"I received a text pretending to be IT support and asking for my VPN code. I did not reply.\",\n  \"category\": \"Phishing Attack\",\n  \"severity\": \"Medium\",\n  \"affected_asset_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - employee reports an unapproved extension (Low)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nLow: a minor event with limited impact.\n\nSent as: employee. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Unknown browser extension\",\n  \"description\": \"A coupon extension appeared in my browser that I did not install.\",\n  \"category\": \"Other\",\n  \"severity\": \"Low\",\n  \"affected_asset_id\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - rejects an invalid category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nCategory must be one of the seven supported categories.\n\nSent as: employee. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test\",\n  \"description\": \"Test\",\n  \"category\": \"Alien Invasion\",\n  \"severity\": \"Low\",\n  \"affected_asset_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - rejects an invalid severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nSeverity must be Low, Medium, High, or Critical.\n\nSent as: employee. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test\",\n  \"description\": \"Test\",\n  \"category\": \"Other\",\n  \"severity\": \"Urgent\",\n  \"affected_asset_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - affected asset does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nThe affected asset must exist in the Asset Management Service.\n\nSent as: employee. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test\",\n  \"description\": \"Test\",\n  \"category\": \"Other\",\n  \"severity\": \"Low\",\n  \"affected_asset_id\": 99999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - rejects missing fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\ntitle, description, category, severity, and affected_asset_id are required.\n\nSent as: employee. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Only a title\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - employee cannot report for someone else",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nOnly administrators can set reporter_id.\n\nSent as: employee. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test\",\n  \"description\": \"Test\",\n  \"category\": \"Other\",\n  \"severity\": \"Low\",\n  \"affected_asset_id\": 3,\n  \"reporter_id\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nAnalysts investigate incidents; they do not create them.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test\",\n  \"description\": \"Test\",\n  \"category\": \"Other\",\n  \"severity\": \"Low\",\n  \"affected_asset_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Incident - auditor is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nAuditors are read-only.\n\nSent as: auditor. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test\",\n  \"description\": \"Test\",\n  \"category\": \"Other\",\n  \"severity\": \"Low\",\n  \"affected_asset_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve All Incidents - admin lists all incidents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nEach incident includes its status, reporter, affected asset, and assigned analyst.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve All Incidents - auditor lists all incidents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nAuditors have read-only access.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve All Incidents - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nAnalysts can view specific incidents but not list them all.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve All Incidents - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents",
+            "description": "**Author:** Titia Saikali\n\nEmployees can only view their own incidents, one at a time.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve Specific Incident - employee views their own report",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}",
+            "description": "**Author:** Titia Saikali\n\nIncludes notes, the next allowed status, and the recommended playbook.\n\nSent as: employee. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve Specific Incident - employee cannot view someone else's",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/3",
+            "description": "**Author:** Titia Saikali\n\nIncident 3 was reported by the administrator.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve Specific Incident - invalid incident id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/99999",
+            "description": "**Author:** Titia Saikali\n\nReturns a clear 'not found' error.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve Specific Incident - analyst views notes and recommended playbook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Recommended playbook found\", function () { pm.expect(pm.response.json().data.recommended_playbook).to.not.be.null; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/1",
+            "description": "**Author:** Titia Saikali\n\nIncident 1 (Phishing Attack, High) has notes and a matching playbook.\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - cannot investigate before assignment",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nAn analyst must be assigned before the investigation starts.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Under Investigation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Assign Incident to Analyst - analyst cannot assign incidents",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/assign",
+            "description": "**Author:** Titia Saikali\n\nUnauthorized assignment attempt: only administrators assign. The attempt is logged.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyst_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Assign Incident to Analyst - rejects a user who is not an analyst",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/assign",
+            "description": "**Author:** Titia Saikali\n\nUser 3 is a Regular Employee. Only Security Analysts can be assigned.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyst_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Assign Incident to Analyst - user does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/assign",
+            "description": "**Author:** Titia Saikali\n\nThe analyst must exist.\n\nSent as: admin. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyst_id\": 99999\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Assign Incident to Analyst - incident does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/99999/assign",
+            "description": "**Author:** Titia Saikali\n\nThe incident must exist.\n\nSent as: admin. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyst_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Assign Incident to Analyst - admin assigns to an analyst",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Analyst assigned\", function () { pm.expect(pm.response.json().data.assigned_analyst.user_id).to.eql(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/assign",
+            "description": "**Author:** Titia Saikali\n\nRecords INCIDENT_ASSIGNED in the audit log and sends the analyst an Incident Assignment notification.\n\nSent as: admin. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyst_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Assign Incident to Analyst - resolved incidents cannot be reassigned",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/3/assign",
+            "description": "**Author:** Titia Saikali\n\nIncident 3 is already Resolved.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"analyst_id\": \"{{analyst2_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - unassigned analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst2_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nAnalysts can only update incidents assigned to them.\n\nSent as: analyst2. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Under Investigation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - 1. Open to Under Investigation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nThe assigned analyst starts the investigation.\n\nSent as: analyst. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Under Investigation\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - rejects skipping a step",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nUnder Investigation can only move to Mitigated.\n\nSent as: analyst. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Resolved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - 2. Under Investigation to Mitigated",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nThe threat is contained.\n\nSent as: analyst. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Mitigated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - 3. Mitigated to Resolved",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Resolution date set\", function () { pm.expect(pm.response.json().data.resolution_date).to.not.be.null; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nRecords the resolution date and notifies the reporter.\n\nSent as: analyst. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Resolved\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - 4. Resolved to Closed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nThe lifecycle is complete.\n\nSent as: admin. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Closed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - Closed is final",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nA Closed incident cannot change status.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Open\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Incident Status - rejects an unknown status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/1/status",
+            "description": "**Author:** Titia Saikali\n\nStatus must be one of the five lifecycle values.\n\nSent as: analyst. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Done\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Investigation Notes - analyst adds evidence",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/1/notes",
+            "description": "**Author:** Titia Saikali\n\nEach note is linked to exactly one incident through incident_id, and records who wrote it and when.\n\nSent as: analyst. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_content\": \"Found 2 more recipients in the mail logs who opened the email. Added them to the password reset list.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Investigation Notes - analyst records actions taken",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Incident now has 4 notes\", function () { pm.expect(pm.response.json().data.notes_count).to.eql(4); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/1/notes",
+            "description": "**Author:** Titia Saikali\n\nNotes are listed in order in GET /incidents/{id}.\n\nSent as: analyst. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_content\": \"All affected passwords reset and sessions revoked. Monitoring for further login attempts.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Investigation Notes - rejects an empty note",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/1/notes",
+            "description": "**Author:** Titia Saikali\n\nNotes cannot be empty.\n\nSent as: analyst. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_content\": \"   \"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Investigation Notes - unassigned analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst2_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/1/notes",
+            "description": "**Author:** Titia Saikali\n\nOnly the assigned analyst (or an administrator) can add notes.\n\nSent as: analyst2. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_content\": \"Trying to add a note\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Investigation Notes - closed incidents accept no notes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/{{created_incident_id}}/notes",
+            "description": "**Author:** Titia Saikali\n\nNotes cannot be added once an incident is Closed.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_content\": \"Late note\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Investigation Notes - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/1/notes",
+            "description": "**Author:** Titia Saikali\n\nOnly analysts and administrators write investigation notes.\n\nSent as: employee. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"note_content\": \"Employee note\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve Specific Incident - incident with its new notes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/incidents/1",
+            "description": "**Author:** Titia Saikali\n\nShows all investigation notes, oldest first.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Security Reports (Titia Saikali)",
+      "description": "GET /reports/summary, /incidents, /assets, /threats, /vulnerabilities, /activity",
+      "item": [
+        {
+          "name": "Titia Saikali - Generate Security Summary Report - admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Has the required fields\", function () { const d = pm.response.json().data; [\"users\",\"assets\",\"open_incidents\",\"critical_threats\"].forEach(k => pm.expect(d).to.have.property(k)); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/summary",
+            "description": "**Author:** Titia Saikali\n\nCounts from Users, Assets, Incidents, Threats, Vulnerabilities, Playbooks, and Logs.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Security Summary Report - auditor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/summary",
+            "description": "**Author:** Titia Saikali\n\nAuditors can generate every report.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Security Summary Report - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/summary",
+            "description": "**Author:** Titia Saikali\n\nAnalysts have no report access.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Security Summary Report - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/summary",
+            "description": "**Author:** Titia Saikali\n\nEmployees have no report access.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Incident Report - totals by severity, status, category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/incidents",
+            "description": "**Author:** Titia Saikali\n\nGrouped counts from the incidents table. Every category is listed, with 0 when empty.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Asset Report - totals by type, criticality, status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/assets",
+            "description": "**Author:** Titia Saikali\n\nIncludes each critical asset with its unresolved incidents and vulnerabilities.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Threat Report - totals by severity and type, recent threats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/threats",
+            "description": "**Author:** Titia Saikali\n\nRead from the threats table; recent_threats lists the 5 newest.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Vulnerability Report - totals by severity and status, critical list",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/vulnerabilities",
+            "description": "**Author:** Titia Saikali\n\nIncludes the average CVSS score and every Critical vulnerability.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Activity Report - all time",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/activity",
+            "description": "**Author:** Titia Saikali\n\nCalculated from the audit logs: total activity, logins, failed logins, top actions, most active users.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Activity Report - last 7 days",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/activity?days=7",
+            "description": "**Author:** Titia Saikali\n\nOnly counts logs from the last 7 days.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Generate Activity Report - rejects an invalid period",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/reports/activity?days=0",
+            "description": "**Author:** Titia Saikali\n\ndays must be a whole number from 1 to 365.\n\nSent as: admin. Expected status: 400."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Playbooks and Response (Titia Saikali)",
+      "description": "POST /playbooks, GET /playbooks, GET /playbooks/{id}, POST /playbooks/{id}/actions, PUT /actions/{id}/status, DELETE /playbooks/{id}",
+      "item": [
+        {
+          "name": "Titia Saikali - Create Response Playbook - data leakage, critical",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"created_playbook_id\", pm.response.json().data.playbook_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks",
+            "description": "**Author:** Titia Saikali\n\nPlaybooks are organized by incident category and severity: one standard procedure per pair.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Data exposure containment\",\n  \"description\": \"Steps to follow when sensitive data is exposed publicly.\",\n  \"incident_category\": \"Data Leakage\",\n  \"severity\": \"Critical\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Response Playbook - denial of service, medium",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"second_playbook_id\", pm.response.json().data.playbook_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks",
+            "description": "**Author:** Titia Saikali\n\nA second playbook.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Service availability response\",\n  \"description\": \"Restore availability during traffic floods.\",\n  \"incident_category\": \"Denial of Service\",\n  \"severity\": \"Medium\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Response Playbook - rejects a duplicate category and severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks",
+            "description": "**Author:** Titia Saikali\n\nPlaybook 1 already covers Phishing Attack / High.\n\nSent as: admin. Expected status: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Another phishing playbook\",\n  \"description\": \"Duplicate test\",\n  \"incident_category\": \"Phishing Attack\",\n  \"severity\": \"High\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Response Playbook - rejects an invalid category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks",
+            "description": "**Author:** Titia Saikali\n\nUses the same categories as incidents.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\",\n  \"description\": \"Test\",\n  \"incident_category\": \"Weather\",\n  \"severity\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Response Playbook - rejects an invalid severity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks",
+            "description": "**Author:** Titia Saikali\n\nSeverity must be Low, Medium, High, or Critical.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\",\n  \"description\": \"Test\",\n  \"incident_category\": \"Other\",\n  \"severity\": \"Mild\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Create Response Playbook - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks",
+            "description": "**Author:** Titia Saikali\n\nOnly administrators create playbooks.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test\",\n  \"description\": \"Test\",\n  \"incident_category\": \"Other\",\n  \"severity\": \"Low\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - step 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"action1_id\", pm.response.json().data.action_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nNew actions start as Pending.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Revoke public access to the exposed storage\",\n  \"step_number\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - step 2 assigned to the second analyst",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"action2_id\", pm.response.json().data.action_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nThe assigned user receives a notification.\n\nSent as: admin. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Review access logs to find who downloaded data\",\n  \"step_number\": 2,\n  \"assigned_user_id\": \"{{analyst2_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - step 3 added by an analyst",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "if (pm.response.code === 201) { pm.collectionVariables.set(\"action3_id\", pm.response.json().data.action_id); }"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nAnalysts can add steps and assign them to themselves.\n\nSent as: analyst. Expected status: 201.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Notify the data protection officer and affected customers\",\n  \"step_number\": 3,\n  \"assigned_user_id\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - rejects a duplicate step number",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nEach step number is used once per playbook.\n\nSent as: admin. Expected status: 409.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Duplicate step\",\n  \"step_number\": 2\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - rejects a gap in the steps",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nThe next step must be 4, so the order has no gaps.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Step with a gap\",\n  \"step_number\": 7\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - rejects step 0",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nSteps start at 1.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Step zero\",\n  \"step_number\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - rejects assigning an employee",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nActions can only be assigned to analysts or administrators.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Employee task\",\n  \"step_number\": 4,\n  \"assigned_user_id\": 3\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - analyst cannot assign someone else",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nAnalysts can only assign actions to themselves.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Delegated task\",\n  \"step_number\": 4,\n  \"assigned_user_id\": \"{{analyst2_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - auditor is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}/actions",
+            "description": "**Author:** Titia Saikali\n\nAuditors are read-only.\n\nSent as: auditor. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Auditor task\",\n  \"step_number\": 4\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Add Response Action - playbook does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/99999/actions",
+            "description": "**Author:** Titia Saikali\n\nThe playbook must exist.\n\nSent as: admin. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action_description\": \"Orphan step\",\n  \"step_number\": 1\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve All Playbooks - analyst lists playbooks",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks",
+            "description": "**Author:** Titia Saikali\n\nEach playbook shows its category, severity, and progress (completed / total actions).\n\nSent as: analyst. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve All Playbooks - filter by category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks?category=Data%20Leakage",
+            "description": "**Author:** Titia Saikali\n\nOptional category and severity filters.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve All Playbooks - employee is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{employee_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks",
+            "description": "**Author:** Titia Saikali\n\nEmployees have no playbook access.\n\nSent as: employee. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve Specific Playbook - auditor views the steps in order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Three actions in order\", function () { const a = pm.response.json().data.actions; pm.expect(a.map(x => x.step_number)).to.eql([1,2,3]); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}",
+            "description": "**Author:** Titia Saikali\n\nActions are always returned in step order.\n\nSent as: auditor. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve Specific Playbook - invalid playbook id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/99999",
+            "description": "**Author:** Titia Saikali\n\nReturns a clear 'not found' error.\n\nSent as: analyst. Expected status: 404."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - step 2 cannot start before step 1",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst2_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action2_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nOrder is enforced: earlier steps must be Completed first.\n\nSent as: analyst2. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - rejects skipping In Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action1_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nPending can only move to In Progress.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - step 1 Pending to In Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Auto-assigned\", function () { pm.expect(pm.response.json().data.action.assigned_user.username).to.eql(\"analyst\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action1_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nStep 1 had no assignee, so the analyst who starts it is assigned automatically.\n\nSent as: analyst. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - step 1 In Progress to Completed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Completion date set\", function () { pm.expect(pm.response.json().data.action.completion_date).to.not.be.null; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action1_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nRecords the completion date and adds an entry to the action's history.\n\nSent as: analyst. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - completed actions are final",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action1_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nA Completed action cannot change status.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - other analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action2_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nStep 2 is assigned to the second analyst.\n\nSent as: analyst. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - step 2 Pending to In Progress",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst2_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action2_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nStep 1 is Completed, so step 2 can start.\n\nSent as: analyst2. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - step 2 In Progress to Completed",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst2_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action2_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nWorkflow progression continues.\n\nSent as: analyst2. Expected status: 200.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Completed\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - rejects a future completion date",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action2_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nCompletion dates cannot be in the future.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completion_date\": \"2099-01-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - rejects a completion date on a Pending action",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action3_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nOnly Completed actions have a completion date.\n\nSent as: admin. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"completion_date\": \"2026-10-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - rejects an unknown status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action3_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nStatus must be Pending, In Progress, or Completed.\n\nSent as: analyst. Expected status: 400.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"Paused\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - auditor is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{auditor_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/{{action3_id}}/status",
+            "description": "**Author:** Titia Saikali\n\nAuditors are read-only.\n\nSent as: auditor. Expected status: 403.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Update Response Action Status - action does not exist",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/actions/99999/status",
+            "description": "**Author:** Titia Saikali\n\nReturns a clear 'not found' error.\n\nSent as: admin. Expected status: 404.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"In Progress\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Retrieve Specific Playbook - progress and history after the updates",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });",
+                  "pm.test(\"Two steps completed\", function () { pm.expect(pm.response.json().data.completed_actions).to.eql(2); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{created_playbook_id}}",
+            "description": "**Author:** Titia Saikali\n\nTwo of three steps Completed; each action lists its status history.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Delete Playbook - analyst is denied",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{analyst_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{second_playbook_id}}",
+            "description": "**Author:** Titia Saikali\n\nAccess control: only administrators delete playbooks. The attempt is logged.\n\nSent as: analyst. Expected status: 403."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Delete Playbook - admin deletes a playbook",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{second_playbook_id}}",
+            "description": "**Author:** Titia Saikali\n\nIts actions and their history are deleted with it; the audit log keeps a record.\n\nSent as: admin. Expected status: 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Titia Saikali - Delete Playbook - playbook is gone",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () { pm.response.to.have.status(404); });",
+                  "pm.test(\"Response uses the standard format\", function () { const j = pm.response.json(); pm.expect(j).to.have.property(\"status\"); pm.expect(j).to.have.property(\"message\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/playbooks/{{second_playbook_id}}",
+            "description": "**Author:** Titia Saikali\n\nConfirms the deletion.\n\nSent as: admin. Expected status: 404."
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:5000"
+    },
+    {
+      "key": "admin_token",
+      "value": ""
+    },
+    {
+      "key": "analyst_token",
+      "value": ""
+    },
+    {
+      "key": "employee_token",
+      "value": ""
+    },
+    {
+      "key": "auditor_token",
+      "value": ""
+    },
+    {
+      "key": "analyst2_token",
+      "value": ""
+    },
+    {
+      "key": "analyst2_id",
+      "value": ""
+    },
+    {
+      "key": "created_incident_id",
+      "value": ""
+    },
+    {
+      "key": "created_playbook_id",
+      "value": ""
+    },
+    {
+      "key": "second_playbook_id",
+      "value": ""
+    },
+    {
+      "key": "action1_id",
+      "value": ""
+    },
+    {
+      "key": "action2_id",
+      "value": ""
+    },
+    {
+      "key": "action3_id",
+      "value": ""
+    }
+  ]
+}

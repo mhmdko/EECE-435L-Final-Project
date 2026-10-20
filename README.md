@@ -40,9 +40,9 @@ Nine services, three per team member, each with six REST endpoints:
 | 2 | Assets | Servers, workstations, databases, and apps that incidents can affect | Anthony Feghali | Done |
 | 4 | Threat Intelligence | Known malicious IPs, domains, and file hashes | Anthony Feghali | Done |
 | 7 | Vulnerabilities | CVEs found on assets, tracked from Open to Closed | Anthony Feghali | Done |
-| 3 | Incidents | Report, assign, investigate, and close incidents | Titia Saikali | In progress |
-| 6 | Security Reports | Statistics gathered from the other services | Titia Saikali | In progress |
-| 9 | Playbooks and Response | Step-by-step response procedures with tracked actions | Titia Saikali | In progress |
+| 3 | Incidents | Report, assign, investigate, and close incidents | Titia Saikali | Done |
+| 6 | Security Reports | Statistics gathered from the other services | Titia Saikali | Done |
+| 9 | Playbooks and Response | Step-by-step response procedures with tracked actions | Titia Saikali | Done |
 
 ---
 
@@ -97,7 +97,7 @@ EECE-435L-Final-Project/
 │   └── 03_incidents_playbooks.sql             Titia Saikali
 ├── postman/                  one Postman collection per team member
 └── docs/
-    ├── architecture-diagram.png   Titia Saikali
+    ├── architecture.md            Titia Saikali (request flow, service map, incident lifecycle)
     ├── database-schema.md         Anthony Feghali (diagram GitHub draws from text)
     └── evidence/                  screenshots from our running system, per member
 ```
@@ -165,21 +165,33 @@ Import the files in `postman/`, then run each collection from top to bottom (see
 
 ## 6. Architecture
 
-<!-- Owner: Titia Saikali. Add docs/architecture-diagram.png and describe how the services communicate. -->
+Owner: Titia Saikali
 
-_To be completed by Titia Saikali._
+**Diagrams:** see [docs/architecture.md](docs/architecture.md), which shows the request flow, how the nine services work together, and the incident lifecycle. GitHub draws them from text.
 
-How the shared parts work today:
+### Overall design
 
-- All services run inside one Flask application. Each service is a Blueprint in its own folder under `app/services/` and is registered automatically.
-- Every protected request passes through `@roles_required`, which checks the login token, the account status, and the user's role before the service code runs.
-- Services cooperate through shared functions: any service records audit events with `log_event()` and alerts users with `create_notification()`.
-- Examples already working:
-  - Adding a High or Critical threat alerts every active Security Analyst.
-  - Adding a High or Critical vulnerability alerts the affected asset's owner.
-  - `GET /assets/{id}` lists the vulnerabilities found on that asset.
+- **Structure:** all nine services run inside one Flask application. Each service is a Blueprint in its own folder under `app/services/`, with its own URL prefix and owner, and is registered automatically by `app/__init__.py`.
+- **One security gate:** every protected request passes through `@roles_required`. It checks the login token, that the account is Active, and the user's role before any service code runs. Rejections are logged.
+- **Storage:** all services share one SQLite database. Foreign keys and `CHECK` constraints keep the data consistent between services.
+- **Responses:** every response uses the same JSON format, `{status, message, data}`.
 
----
+### How the services communicate
+
+Services call each other through shared functions and each other's models:
+
+| From | To | When |
+|------|----|------|
+| Every service | Audit Logging (`log_event()`) | Every create, update, delete, and denied request |
+| Incidents | Assets | Checks the affected asset exists |
+| Incidents | Users | Checks the assigned user is a Security Analyst |
+| Incidents | Notifications | Alerts administrators about High/Critical incidents, the analyst on assignment, and the reporter on resolution |
+| Incidents | Playbooks | Suggests the playbook for the incident's category and severity |
+| Threat Intelligence | Notifications | Alerts every analyst about a High/Critical threat |
+| Vulnerabilities | Assets | Checks the affected asset exists |
+| Vulnerabilities | Notifications | Alerts the asset owner about a High/Critical vulnerability |
+| Playbooks | Notifications | Notifies the user assigned to a response action |
+| Security Reports | Users, Assets, Incidents, Threats, Vulnerabilities, Logs, Playbooks | Reads their tables to build statistics |
 
 ## 7. Database
 
@@ -199,13 +211,21 @@ The database is a single SQLite file, `instance/security.db`, built by `python i
 | assets | 02 | asset_id | owner_id → users | type, criticality, and status limited to allowed values; owners with assets cannot be deleted |
 | threats | 02 | threat_id | none | UNIQUE (threat_type, threat_value); type and severity limited to allowed values |
 | vulnerabilities | 02 | vulnerability_id | asset_id → assets | UNIQUE (cve_id, asset_id); CVSS score from 0.0 to 10.0; assets with vulnerabilities cannot be deleted |
-| incidents, investigation_notes, playbooks, response_actions | 03 | | | added by Titia Saikali |
+| incidents | 03 | incident_id | reporter_id → users; affected_asset_id → assets; assigned_analyst_id → users (SET NULL on delete) | category, severity, and status limited to allowed values; reporters and assets with incidents cannot be deleted |
+| investigation_notes | 03 | note_id | incident_id → incidents (CASCADE); analyst_id → users | each note belongs to exactly one incident |
+| playbooks | 03 | playbook_id | created_by → users | UNIQUE (incident_category, severity): one standard playbook per pair |
+| response_actions | 03 | action_id | playbook_id → playbooks (CASCADE); assigned_user_id → users (SET NULL on delete) | UNIQUE (playbook_id, step_number); status Pending, In Progress, Completed |
+| action_history | 03 | history_id | action_id → response_actions (CASCADE); changed_by → users (SET NULL on delete) | keeps every status change of every action |
 
 ### Relationships
 
 - One user owns many assets, receives many notifications, and performs many logged actions.
 - One asset can have many vulnerabilities; each vulnerability belongs to exactly one asset.
 - Threats stand alone: an indicator is known to be malicious whether or not it has hit us yet.
+- A user can report many incidents, and a Security Analyst can be assigned many incidents.
+- One asset can be affected by many incidents.
+- One incident has many investigation notes; each note belongs to one incident.
+- One playbook has many response actions; one user can be assigned many response actions.
 
 ### Design decisions
 
@@ -290,7 +310,7 @@ Validation rules are listed in each service's README. Protection against malicio
 |------------|-------|----------|
 | `MohammadKourani.postman_collection.json` | Mohammad Kourani | 67 (all passing) |
 | `AnthonyFeghali.postman_collection.json` | Anthony Feghali | 95 (all passing) |
-| `TitiaSaikali.postman_collection.json` | Titia Saikali | to be added |
+| `TitiaSaikali.postman_collection.json` | Titia Saikali | 97 (all passing) |
 
 Request names follow the format **Full Name - API title - what it does**, which matches the screenshot caption format required by the course.
 
@@ -361,9 +381,11 @@ def add_asset():
 | Assets, Threat Intelligence, Vulnerabilities (18 endpoints) | Done (Anthony Feghali) |
 | Database script 02 with sample data | Done (Anthony Feghali) |
 | Postman collection for services 2, 4, 7 (95 requests, all passing) | Done (Anthony Feghali) |
-| Incidents, Reports, Playbooks | In progress (Titia Saikali) |
-| Database schema diagram | Done (Anthony Feghali), Incidents tables to be added |
-| Architecture diagram | In progress (Titia Saikali) |
+| Incidents, Reports, Playbooks (18 endpoints) | Done (Titia Saikali) |
+| Database script 03 with sample data | Done (Titia Saikali) |
+| Postman collection for services 3, 6, 9 (97 requests, all passing) | Done (Titia Saikali) |
+| Database schema diagram | Done (Anthony Feghali, with incident and playbook tables by Titia Saikali) |
+| Architecture diagrams | Done (Titia Saikali) |
 | Evidence screenshots | In progress (each member) |
 | Final report | In progress |
 
@@ -375,7 +397,7 @@ def add_asset():
 |--------|----------|-------------|-----------------|
 | Mohammad Kourani | Users and Identity, Security Audit Logging, Notifications | Project setup, configuration, authentication and role checks, error format, validation helpers, database build script, README | Title page, Table of Contents, Introduction, Authentication and Authorization |
 | Anthony Feghali | Assets, Threat Intelligence, Vulnerabilities | Network and security validation helpers, database schema diagram and description | Database Design, Error Handling and Validation |
-| Titia Saikali | Incidents, Security Reports, Playbooks and Response | Architecture diagram, evidence checklist | System Architecture, GitHub and Version Control, References |
+| Titia Saikali | Incidents, Security Reports, Playbooks and Response | Architecture documentation and diagrams, incident and playbook tables in the schema diagram | System Architecture, GitHub and Version Control, References |
 
 Each member pushes their own work from their own GitHub account. See the commit history for details.
 
@@ -397,4 +419,4 @@ Each member pushes their own work from their own GitHub account. See the commit 
 |--------|------|-------------------|---------|
 | Mohammad Kourani | Claude (Anthropic) | Project structure, shared modules in `app/common/`, the Users, Audit Logging, and Notifications services, `database/01_...sql`, the Postman collection, and this README | Generate the initial implementation, which was then reviewed, run, and tested on our machines |
 | Anthony Feghali | Claude (Anthropic) and Codex (OpenAI) | The Assets, Threat Intelligence, and Vulnerabilities services, `app/common/network_validation.py`, `database/02_...sql`, the Postman collection, the Database section of this README, `docs/database-schema.md`, integration verification, and report and evidence drafts outside the repo | Generate the initial implementation; assist with integration, testing, and documentation, subject to review and verification on our machines |
-| Titia Saikali | | | |
+| Titia Saikali | Claude (Anthropic) and Codex (OpenAI) | The Incidents, Security Reports, and Playbooks services, database script 03, the Postman collection, architecture documentation, incident and playbook schema additions, integration verification, and report and evidence drafts outside the repo | Generate the initial implementation; assist with integration, testing, and documentation, subject to review and verification on our machines |

@@ -1,6 +1,6 @@
 # Database schema
 
-Owner: Anthony Feghali
+Owner: Anthony Feghali (incident and playbook tables: Titia Saikali)
 
 GitHub draws the diagram below automatically. For the report, open this file on GitHub and take a screenshot of the diagram.
 
@@ -12,6 +12,15 @@ erDiagram
     users ||--o{ notifications : "receives (CASCADE on delete)"
     users ||--o{ assets : "owns"
     assets ||--o{ vulnerabilities : "has"
+    users ||--o{ incidents : "reports"
+    users ||--o{ incidents : "is assigned (SET NULL on delete)"
+    assets ||--o{ incidents : "is affected by"
+    incidents ||--o{ investigation_notes : "contains (CASCADE)"
+    users ||--o{ investigation_notes : "writes"
+    users ||--o{ playbooks : "creates"
+    playbooks ||--o{ response_actions : "contains (CASCADE)"
+    users ||--o{ response_actions : "is assigned (SET NULL on delete)"
+    response_actions ||--o{ action_history : "records (CASCADE)"
 
     users {
         INTEGER user_id PK
@@ -88,6 +97,60 @@ erDiagram
         DATETIME resolution_date
         DATETIME updated_date
     }
+
+    incidents {
+        INTEGER incident_id PK
+        TEXT title
+        TEXT description
+        TEXT category "7 allowed categories"
+        TEXT severity "Low to Critical"
+        INTEGER reporter_id FK
+        INTEGER affected_asset_id FK
+        INTEGER assigned_analyst_id FK
+        TEXT status "Open to Closed lifecycle"
+        DATETIME created_date
+        DATETIME resolution_date
+        DATETIME updated_date
+    }
+
+    investigation_notes {
+        INTEGER note_id PK
+        INTEGER incident_id FK
+        INTEGER analyst_id FK
+        TEXT note_content
+        DATETIME created_timestamp
+    }
+
+    playbooks {
+        INTEGER playbook_id PK
+        TEXT name
+        TEXT description
+        TEXT incident_category UK "unique with severity"
+        TEXT severity UK
+        INTEGER created_by FK
+        DATETIME created_date
+    }
+
+    response_actions {
+        INTEGER action_id PK
+        INTEGER playbook_id FK
+        TEXT action_description
+        INTEGER step_number "unique per playbook"
+        TEXT status "Pending, In Progress, Completed"
+        INTEGER assigned_user_id FK
+        DATETIME completion_date
+        DATETIME created_date
+        DATETIME updated_date
+    }
+
+    action_history {
+        INTEGER history_id PK
+        INTEGER action_id FK
+        TEXT old_status
+        TEXT new_status
+        INTEGER changed_by FK
+        DATETIME changed_at
+    }
 ```
 
-**To be added by Titia Saikali:** `incidents` (linked to users as reporter and analyst, and to assets as the affected asset), `investigation_notes`, `playbooks`, and `response_actions`. Add them to the diagram above when `database/03_...sql` is ready.
+The incidents, investigation_notes, playbooks, response_actions, and action_history tables were added by Titia Saikali (`database/03_incidents_playbooks.sql`).
